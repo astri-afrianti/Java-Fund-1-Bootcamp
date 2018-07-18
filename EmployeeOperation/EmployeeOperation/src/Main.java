@@ -3,7 +3,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.*;
 
-import Class.*;
+import employeeClass.*;
 
 /***
  * This was meant for Boot-camp: Java Fundamental 1 training.
