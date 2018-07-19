@@ -37,14 +37,14 @@ public class CollectionOpMain {
 		listEmployee.add(rene);
 		
 		// Create list of employee
-		/*listOperations(listEmployee);
+		listOperations(listEmployee);
 		
 		// create map of employee
 		mapOperations(listEmployee);
 				
 		// create set of employee
 		hashSetOperations(listEmployee);
-		*/
+		
 		// create stack of employeeClass/
 		stackOperations(listEmployee);
 	}
