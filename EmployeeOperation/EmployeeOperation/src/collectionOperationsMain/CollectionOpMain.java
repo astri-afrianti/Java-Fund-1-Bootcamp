@@ -1,6 +1,5 @@
 package collectionOperationsMain;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -8,8 +7,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import employeeClass.*;
@@ -20,6 +21,9 @@ public class CollectionOpMain {
 		/* 
 		 * Each below collection will implement add, remove, filter, and sort
 		 * */
+		String welcomeText = getWelcomeText();
+		String consoleInput = "";
+		
 		// Employees instances
 		Employee budi = new SoftwareEngineer("Budi", 10);
 		Employee abdi = new SoftwareEngineer("Abdi", 11);
@@ -36,17 +40,36 @@ public class CollectionOpMain {
 		listEmployee.add(toyyib);
 		listEmployee.add(rene);
 		
-		// Create list of employee
-		listOperations(listEmployee);
-		
-		// create map of employee
-		mapOperations(listEmployee);
+		do {
+			System.out.println(welcomeText);
+			consoleInput = System.console().readLine();
+			
+			switch(consoleInput.toLowerCase()) {
+			case "1":
+				// Create list of employee
+				listOperations(listEmployee);
+				break;
+			case "2":
+				// create map of employee
+				mapOperations(listEmployee);
+				break;
+			case "3":
+				// create set of employee
+				hashSetOperations(listEmployee);
+				break;
+			case "4":
+				// create stack of employeeClass/
+				stackOperations(listEmployee);
+				break;
+			case "exit":
+				System.out.println("Program exitting");
+				break;
+			default:
+				System.out.printf("No menu matched (%s) \n", consoleInput);	
+			}
 				
-		// create set of employee
-		hashSetOperations(listEmployee);
-		
-		// create stack of employeeClass/
-		stackOperations(listEmployee);
+		} 
+		while (consoleInput != null && !consoleInput.equalsIgnoreCase("exit"));	
 	}
 
 	private static void listOperations(List<Employee> employees) {
@@ -79,12 +102,59 @@ public class CollectionOpMain {
 		displayAllEmployee(filteredEmployee);
 		
 		System.out.println("============================================================================");
-		System.out.println("Sort employee");
+		System.out.println("Filter first employee that contains \"di\"");
+		Employee firstToFind = listEmployee.stream()
+				.filter(emp -> emp.getName().toLowerCase().contains("di"))
+				.findFirst()
+				.get();
+		firstToFind.displayProfile();
+		
+		System.out.println("============================================================================");
+		System.out.println("Filter any employee that contains \"di\"");
+		Employee anyToFind = listEmployee.stream()
+				.filter(emp -> emp.getName().toLowerCase().contains("di"))
+				.findAny()
+				.get();
+		anyToFind.displayProfile();
+		
+		System.out.println("============================================================================");
+		System.out.println("Check is any employee that contains \"di\"");
+		boolean isAnyMatch = listEmployee.stream()
+				.anyMatch(emp -> emp.getName().toLowerCase().contains("di"));
+		System.out.printf("%s \n", String.valueOf(isAnyMatch));
+		
+		System.out.println("============================================================================");
+		System.out.println("Check is all employee contains \"di\"");
+		boolean isAllMatch = listEmployee.stream()
+				.allMatch(emp -> emp.getName().toLowerCase().contains("di"));
+		System.out.printf("%s \n", String.valueOf(isAllMatch));
+		
+		System.out.println("============================================================================");
+		System.out.println("Check is none employee contains \"di\"");
+		boolean isNoneMatch = listEmployee.stream()
+				.noneMatch(emp -> emp.getName().toLowerCase().contains("di"));
+		System.out.printf("%s \n", String.valueOf(isNoneMatch));
+		
+		System.out.println("============================================================================");
+		System.out.println("Sorted employee");
 		listEmployee.sort(Comparator.comparing(Employee::getName));
 		displayAllEmployee(listEmployee);
+		
+		System.out.println("============================================================================");
+		System.out.println("Sorted employee name to flatmap, in .net we called SelectMany(exp)");
+		List<String> employeeNames = listEmployee.stream()
+				.map(Employee::getName)
+				.distinct()
+				.collect(Collectors.toList());
+		employeeNames.forEach(e -> System.out.printf("%s ", e));
+		System.out.println("");
 	}
 	
 	private static void hashSetOperations(List<Employee> employees) {
+		// To make sure we don't process a null list
+		employees = Optional.ofNullable(employees)
+				.orElse(new LinkedList<Employee>());
+		
 		System.out.println("============================================================================");
 		System.out.println("Instantiate Employee hash set");
 		Set<Employee> hashSetEmployee = new HashSet<Employee>(); 
@@ -119,21 +189,22 @@ public class CollectionOpMain {
 	}
 
 	private static void mapOperations(List<Employee> employees) {
+		// To make sure we don't process a null list
+		employees = Optional.ofNullable(employees)
+						.orElse(new LinkedList<Employee>());
+				
 		System.out.println("============================================================================");
-		System.out.println("Instantiate Employee Map");
-		Map<Integer, Employee> mapEmployee = new HashMap<Integer, Employee>();
-		System.out.println("Add item to list");
+		System.out.println("Instantiate Employee Map");		
+		System.out.println("Add item to list, using stream and collector");		
 		
-		int counter = 1;	
-		for(Employee empItem: employees) {
-			mapEmployee.put(counter++, empItem);
-		}
+		AtomicInteger index = new AtomicInteger();
+		Map<Integer, Employee> mapEmployee = employees.stream().collect(Collectors.toMap(emp -> index.getAndIncrement(), emp -> emp));
 		
 		displayAllEmployee(mapEmployee);	
 		
 		System.out.println("============================================================================");
 		System.out.println("Remove Amru from list");
-		List<Integer> keysToRemove= new ArrayList<Integer>();
+		List<Integer> keysToRemove= new LinkedList<Integer>();
 		for(Map.Entry<Integer, Employee> empItem: mapEmployee.entrySet()) {
 			if(empItem.getValue().getName().equalsIgnoreCase("Amru")) {
 				keysToRemove.add(empItem.getKey());
@@ -158,6 +229,10 @@ public class CollectionOpMain {
 	}
 	
 	private static void stackOperations(List<Employee> employees) {
+		// To make sure we don't process a null list
+		employees = Optional.ofNullable(employees)
+						.orElse(new LinkedList<Employee>());
+				
 		System.out.println("============================================================================");
 		System.out.println("Instantiate Employee stack");
 		Stack<Employee> stackEmployee = new Stack<Employee>();
@@ -182,6 +257,10 @@ public class CollectionOpMain {
 	}
 	
 	private static void displayAllEmployee(Collection<Employee> employees) {
+		// To make sure we don't process a null list
+		employees = Optional.ofNullable(employees)
+						.orElse(new LinkedList<Employee>());
+				
 		if(employees.size() == 0) {
 			System.out.println("No Employee was found");
 			return;
@@ -195,6 +274,10 @@ public class CollectionOpMain {
 	}
 	
 	private static void displayAllEmployee(Map<Integer, Employee> employees) {
+		// To make sure we don't process a null list
+		employees = Optional.ofNullable(employees)
+					.orElse(new HashMap<Integer, Employee>());
+				
 		if(employees.size() == 0) {
 			System.out.println("No Employee was found");
 			return;
@@ -204,6 +287,19 @@ public class CollectionOpMain {
 			System.out.println(empItem.getKey());
 			empItem.getValue().displayProfile();
 		}	
+	}
+	
+	private static String getWelcomeText() {
+		StringBuilder welcomeText = new StringBuilder()
+				.append("============================================================================\n")
+				.append("Welcome to Employee Collection Operation, please select one of below menu number eg. 1 \n")
+				.append("1. List Operations \n")
+				.append("2. Map Operations \n")
+				.append("3. Hash Set Operations \n")
+				.append("4. Stack Operations \n")
+				.append("or type \"exit\" to terminate the program");
+		
+		return welcomeText.toString();
 	}
 
 }
